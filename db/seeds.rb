@@ -16,5 +16,5 @@ end
 pokemonPics = pokemon.map{ |p| p['sprites']['front_default'] }
 
 pokemonPics.each do |pic|
-    Theme.create(name: "pokemon", img_url: pic)
+    Theme.create(name: "pokemon", image_url: pic)
 end
