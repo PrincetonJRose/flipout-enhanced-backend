@@ -1,19 +1,37 @@
 class UsersController < ApplicationController
 
+    before_action :authorize!, only: [:update, :destroy]
+
     def index
         @users = User.all
         render json: @users, status: :ok
     end
 
+    def show
+        @user = User.find_by(params[:id])
+        if @user
+            render json: @user, status: :ok
+        else
+            render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+        end
+    end 
+
     def create
         @user = User.new(user_params)
         if @user.save
-            # Stat.all.each {|s| @user.user_stats.build(stat_id: s.id) }
-            @stats = Stat.all
-            @stats.each do |stat|
-                @new_stat = UserStat.create!(user_id: @user.id, stat_id: stat.id, stat_name: stat.stat_name, score: 0)
+            render json: @user, status: :ok
+        else
+            render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+        end
+    end
+
+    def update
+        @user = User.find_by(current_user.id)
+        if @user
+            @user = user_params
+            if @user.save
+                render json: @user, status: :ok
             end
-            render json: @user.to_json(include: :user_stats), status: :ok
         else
             render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
         end
@@ -22,7 +40,7 @@ class UsersController < ApplicationController
     private
 
     def user_params
-        params.require(:user).permit(:username, :first_name, :last_name, :password_digest, :age)
+        params.require(:user).permit(:username, :first_name, :last_name, :password, :age, :fewest_misses, :best_combo, :games_played, :id)
     end
     
 end
